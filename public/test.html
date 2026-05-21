@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head><title>Image Test</title></head>
+<body>
+  <h1>Image Loading Test</h1>
+  <h2>Thumbnail 1:</h2>
+  <img src="/api/uploads/2026-05-16/Jesse/thumbnails/1779272570541_cfnzbj_thumb.jpg" alt="thumb1" width="400" />
+  
+  <h2>Thumbnail 2:</h2>
+  <img src="/api/uploads/2026-05-16/Jesse/thumbnails/1779272548347_ex7enw_thumb.jpg" alt="thumb2" width="400" />
+  
+  <h2>Original 1:</h2>
+  <img src="/api/uploads/2026-05-16/Jesse/original/1779272570541_cfnzbj.jpg" alt="original1" width="400" />
+  
+  <script>
+    document.querySelectorAll('img').forEach(img => {
+      img.onload = () => console.log('Loaded:', img.src);
+      img.onerror = () => console.error('Failed:', img.src);
+    });
+  </script>
+</body>
+</html>

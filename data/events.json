@@ -1,0 +1,26 @@
+{
+  "test-event": {
+    "id": "test-event",
+    "description": "Test event",
+    "coverImage": "",
+    "createdAt": "2026-05-20T14:19:40.238Z",
+    "expiresAt": "2026-05-27T14:19:40.238Z",
+    "active": true
+  },
+  "dsalhfehwuihfwa": {
+    "id": "dsalhfehwuihfwa",
+    "description": "very googd ",
+    "coverImage": "/api/covers/cover-1779350142408.jpg",
+    "createdAt": "2026-05-21T07:55:42.420Z",
+    "expiresAt": "2026-05-28T07:55:42.420Z",
+    "active": true
+  },
+  "2026-05-19-outdoor": {
+    "id": "2026-05-19-outdoor",
+    "description": "骑行开始喽...",
+    "coverImage": "",
+    "createdAt": "2026-05-21T08:44:40.550Z",
+    "expiresAt": "2026-06-20T08:44:40.550Z",
+    "active": true
+  }
+}

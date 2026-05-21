@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  photo-collector:
+    build: .
+    container_name: photo-collector
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - JWT_SECRET=your-secret-key-change-this
+    volumes:
+      - ./data:/app/data
