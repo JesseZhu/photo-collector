@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   photo-collector:
@@ -10,4 +10,4 @@ services:
     environment:
       - JWT_SECRET=your-secret-key-change-this
     volumes:
-      - ./data:/app/data
+      - /volume1/docker/photo-collector:/app/data

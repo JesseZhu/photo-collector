@@ -21,6 +21,9 @@
 # production
 /build
 
+# data (contains uploads, covers, admin config)
+/data/
+
 # misc
 .DS_Store
 *.pem
