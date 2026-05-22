@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import PhotoCard from './PhotoCard';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 
 interface PhotoGridProps {
   photos: Array<{
@@ -65,12 +65,22 @@ export default function PhotoGrid({ photos, formatRelativeTime }: PhotoGridProps
           className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
           onClick={closeLightbox}
         >
-          <button
-            onClick={closeLightbox}
-            className="absolute top-4 right-4 p-2 text-white hover:bg-white/20 rounded-full transition-colors"
-          >
-            <X className="h-6 w-6" />
-          </button>
+          <div className="absolute top-4 right-4 flex items-center gap-2">
+            <a
+              href={photos[selectedPhoto].originalPath}
+              download
+              className="p-2 text-white hover:bg-white/20 rounded-full transition-colors"
+              title="下载"
+            >
+              <Download className="h-6 w-6" />
+            </a>
+            <button
+              onClick={closeLightbox}
+              className="p-2 text-white hover:bg-white/20 rounded-full transition-colors"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
 
           <button
             onClick={(e) => {

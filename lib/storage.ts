@@ -227,6 +227,37 @@ function getFileExtension(mimeType: string): string {
   return extMap[mimeType] || '.jpg';
 }
 
+export async function deletePhoto(event: string, user: string, filename: string): Promise<void> {
+  const sanitizedEvent = sanitizeInput(event);
+  const sanitizedUser = sanitizeInput(user);
+  const safeFilename = filename.replace(/[/\\]/g, '').trim();
+
+  if (!sanitizedEvent || !sanitizedUser || !safeFilename) {
+    throw new Error('Invalid parameters');
+  }
+
+  const baseDir = path.join(UPLOAD_DIR, sanitizedEvent, sanitizedUser);
+  const ext = path.extname(safeFilename);
+  const baseName = path.basename(safeFilename, ext);
+  const originalFile = path.join(baseDir, 'original', safeFilename);
+  const thumbnailFile = path.join(baseDir, 'thumbnails', `${baseName}_thumb.jpg`);
+
+  let deletedCount = 0;
+  try {
+    await fs.unlink(originalFile);
+    deletedCount++;
+  } catch { /* file may not exist */ }
+
+  try {
+    await fs.unlink(thumbnailFile);
+    deletedCount++;
+  } catch { /* file may not exist */ }
+
+  if (deletedCount === 0) {
+    throw new Error('Photo not found');
+  }
+}
+
 function getFileTypeFromExtension(ext: string): 'image' | 'video' {
   const imageExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif'];
   const videoExts = ['.mp4', '.mov', '.avi'];

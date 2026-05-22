@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPhotos } from '@/lib/storage';
+import { getPhotos, deletePhoto } from '@/lib/storage';
 import { isEventValid } from '@/lib/events';
+import { getTokenFromRequest, verifyToken } from '@/lib/admin';
 
 export async function GET(request: NextRequest) {
   try {
@@ -42,6 +43,39 @@ export async function GET(request: NextRequest) {
     console.error('Get photos error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to get photos' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const token = getTokenFromRequest(request.headers);
+  if (!token || !verifyToken(token)) {
+    return NextResponse.json(
+      { success: false, error: 'Unauthorized' },
+      { status: 401 }
+    );
+  }
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const event = searchParams.get('event');
+    const user = searchParams.get('user');
+    const filename = searchParams.get('filename');
+
+    if (!event || !user || !filename) {
+      return NextResponse.json(
+        { success: false, error: 'event, user, and filename are required' },
+        { status: 400 }
+      );
+    }
+
+    await deletePhoto(event, user, filename);
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: error.message || 'Failed to delete photo' },
       { status: 500 }
     );
   }
