@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Lock, Plus, Trash2, Copy, ExternalLink, Calendar, Users, Image, Clock, LogOut, AlertCircle, CheckCircle, Upload, X, Camera } from 'lucide-react';
+import { Lock, Plus, Trash2, Copy, ExternalLink, Users, Image, Clock, LogOut, AlertCircle, CheckCircle, Upload, X, Camera } from 'lucide-react';
 
 interface Event {
   id: string;
@@ -43,13 +43,10 @@ export default function AdminPage() {
     try {
       const res = await fetch(`${baseUrl}/api/admin/login`);
       const data = await res.json();
-      if (data.initialized) {
-        const token = getCookie('admin_token');
-        if (token) {
-          setIsAuthenticated(true);
-          loadEvents(true);
-        }
-      } else {
+      if (data.initialized && data.authenticated) {
+        setIsAuthenticated(true);
+        loadEvents(true);
+      } else if (!data.initialized) {
         setIsInitializing(true);
       }
     } catch (error) {
@@ -61,13 +58,7 @@ export default function AdminPage() {
 
   const loadEvents = async (admin = false) => {
     try {
-      const headers: Record<string, string> = {};
-      const token = getCookie('admin_token');
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const res = await fetch(`${baseUrl}/api/events?admin=${admin}`, { headers });
+      const res = await fetch(`${baseUrl}/api/events?admin=${admin}`);
       const data = await res.json();
       if (data.success) {
         setEvents(data.events);
@@ -119,17 +110,9 @@ export default function AdminPage() {
         coverUrl = await uploadCover();
       }
 
-      const token = getCookie('admin_token');
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
       const res = await fetch(`${baseUrl}/api/events`, {
         method: 'POST',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...newEvent, coverImage: coverUrl }),
       });
 
@@ -155,15 +138,8 @@ export default function AdminPage() {
     }
 
     try {
-      const token = getCookie('admin_token');
-      const headers: Record<string, string> = {};
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
       const res = await fetch(`${baseUrl}/api/events?id=${encodeURIComponent(id)}`, {
         method: 'DELETE',
-        headers,
       });
 
       const data = await res.json();
@@ -203,15 +179,11 @@ export default function AdminPage() {
 
     setCoverUploading(true);
     try {
-      const token = getCookie('admin_token');
       const formData = new FormData();
       formData.append('file', coverFile);
 
       const res = await fetch(`${baseUrl}/api/covers`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
         body: formData,
       });
 
@@ -245,11 +217,6 @@ export default function AdminPage() {
     setMessage({ type: 'success', text: '链接已复制到剪贴板' });
   };
 
-  const getCookie = (name: string): string | null => {
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    return match ? decodeURIComponent(match[2]) : null;
-  };
-
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('zh-CN', {
       year: 'numeric',
@@ -270,11 +237,11 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <main className="min-h-screen bg-[#f8f9fa] flex items-center justify-center pt-16">
-        <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-sm border border-[#e1bfb8]/20">
+      <main className="min-h-screen bg-[#f8f9fa] flex items-center justify-center pt-16 px-4">
+        <div className="w-full max-w-sm sm:max-w-md p-6 sm:p-8 bg-white rounded-xl shadow-sm border border-[#e1bfb8]/20">
           <div className="text-center mb-6">
-            <Lock className="mx-auto h-12 w-12 text-[#ae3115] mb-4" />
-            <h1 className="font-bold text-2xl text-[#191c1d]">管理员登录</h1>
+            <Lock className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-[#ae3115] mb-4" />
+            <h1 className="font-bold text-xl sm:text-2xl text-[#191c1d]">管理员登录</h1>
             {isInitializing && (
               <p className="mt-2 text-sm text-[#8c1900]">
                 首次使用：请设置管理员密码
@@ -330,10 +297,10 @@ export default function AdminPage() {
     <main className="min-h-screen bg-[#f8f9fa] text-[#191c1d] antialiased pt-16 pb-24 md:pb-8">
       {/* Top App Bar */}
       <header className="fixed top-0 w-full z-50 bg-[#f8f9fa]/70 backdrop-blur-md border-b border-[#e1bfb8]/20 shadow-sm">
-        <div className="flex justify-between items-center h-16 px-5 max-w-[1280px] mx-auto w-full">
+        <div className="flex justify-between items-center h-14 sm:h-16 px-4 sm:px-5 max-w-[1280px] mx-auto w-full">
           <div className="flex items-center gap-1">
-            <Camera className="w-8 h-8 text-[#ae3115]" />
-            <span className="font-bold text-xl text-[#ae3115] tracking-tight">管理后台</span>
+            <Camera className="w-7 h-7 sm:w-8 sm:h-8 text-[#ae3115]" />
+            <span className="font-bold text-lg sm:text-xl text-[#ae3115] tracking-tight">管理后台</span>
           </div>
           <button
             onClick={handleLogout}
@@ -345,16 +312,16 @@ export default function AdminPage() {
         </div>
       </header>
 
-      <div className="max-w-[1280px] mx-auto px-5 pt-10 pb-10">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-5 pt-6 sm:pt-10 pb-10">
         {/* Message */}
         {message && (
-          <div className={`mb-6 p-4 rounded-xl flex items-center gap-2 ${
+          <div className={`mb-4 sm:mb-6 p-3 sm:p-4 rounded-xl flex items-center gap-2 text-sm sm:text-base ${
             message.type === 'error' ? 'bg-[#ffdad6] text-[#ba1a1a]' : 'bg-[#ffdad2]/30 text-[#ae3115]'
           }`}>
             {message.type === 'error' ? (
-              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
             ) : (
-              <CheckCircle className="h-5 w-5 flex-shrink-0" />
+              <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
             )}
             <span>{message.text}</span>
           </div>
@@ -364,7 +331,7 @@ export default function AdminPage() {
         <div className="mb-6">
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
-            className="flex items-center gap-2 bg-[#ae3115] text-white px-6 py-3 rounded-full font-semibold shadow-[0_8px_24px_rgba(174,49,21,0.2)] hover:bg-[#ff6b4a] hover:text-[#661000] transition-colors active:scale-95 duration-200"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#ae3115] text-white px-6 py-3 rounded-full font-semibold shadow-[0_8px_24px_rgba(174,49,21,0.2)] hover:bg-[#ff6b4a] hover:text-[#661000] transition-colors active:scale-95 duration-200"
           >
             <Plus className="h-5 w-5" />
             创建新活动
@@ -373,9 +340,9 @@ export default function AdminPage() {
 
         {/* Create Event Form */}
         {showCreateForm && (
-          <div className="mb-8 p-6 bg-white rounded-xl shadow-sm border border-[#e1bfb8]/20 relative overflow-hidden">
+          <div className="mb-8 p-4 sm:p-6 bg-white rounded-xl shadow-sm border border-[#e1bfb8]/20 relative overflow-hidden">
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#ff6b4a]/10 rounded-full blur-2xl"></div>
-            <h2 className="font-bold text-xl text-[#191c1d] mb-4 relative z-10">创建活动</h2>
+            <h2 className="font-bold text-lg sm:text-xl text-[#191c1d] mb-4 relative z-10">创建活动</h2>
             <form onSubmit={handleCreateEvent} className="space-y-4 relative z-10">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -465,11 +432,11 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-2">
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <button
                   type="submit"
                   disabled={coverUploading}
-                  className="flex items-center justify-center gap-2 bg-[#ae3115] text-white h-[56px] px-8 rounded-full font-semibold shadow-[0_8px_24px_rgba(174,49,21,0.2)] hover:bg-[#ff6b4a] hover:text-[#661000] transition-colors active:scale-95 duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#ae3115] text-white h-[56px] px-8 rounded-full font-semibold shadow-[0_8px_24px_rgba(174,49,21,0.2)] hover:bg-[#ff6b4a] hover:text-[#661000] transition-colors active:scale-95 duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {coverUploading ? '上传中...' : '创建活动'}
                 </button>
@@ -480,7 +447,7 @@ export default function AdminPage() {
                     setNewEvent({ id: '', description: '', coverImage: '', expiryDays: 7 });
                     clearCover();
                   }}
-                  className="px-6 py-2 bg-[#e1e3e4] text-[#59413c] rounded-full hover:bg-[#d9dadb] transition-colors font-medium"
+                  className="w-full sm:w-auto px-6 py-2 bg-[#e1e3e4] text-[#59413c] rounded-full hover:bg-[#d9dadb] transition-colors font-medium h-[56px] sm:h-auto"
                 >
                   取消
                 </button>
@@ -491,10 +458,10 @@ export default function AdminPage() {
 
         {/* Events List */}
         <section>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="font-bold text-2xl text-[#191c1d]">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <h2 className="font-bold text-xl sm:text-2xl text-[#191c1d]">
               活动列表
-              <span className="text-[#59413c] text-base ml-2 font-normal">({events.length})</span>
+              <span className="text-[#59413c] text-sm sm:text-base ml-2 font-normal">({events.length})</span>
             </h2>
           </div>
 
@@ -503,14 +470,14 @@ export default function AdminPage() {
               <p className="text-[#59413c]">还没有活动，创建你的第一个活动吧！</p>
             </div>
           ) : (
-            <div className="masonry-grid">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {events.map(event => (
                 <div
                   key={event.id}
-                  className="masonry-item p-5 bg-white rounded-xl border border-[#e1bfb8]/20 hover:shadow-md transition-shadow"
+                  className="p-4 sm:p-5 bg-white rounded-xl border border-[#e1bfb8]/20 hover:shadow-md transition-shadow"
                 >
                   {event.coverImage && (
-                    <div className="h-32 -mx-5 -mt-5 mb-4 overflow-hidden rounded-t-xl">
+                    <div className="h-28 sm:h-32 -mx-4 sm:-mx-5 -mt-4 sm:-mt-5 mb-3 sm:mb-4 overflow-hidden rounded-t-xl">
                       <img
                         src={event.coverImage}
                         alt={event.id}
@@ -519,8 +486,8 @@ export default function AdminPage() {
                     </div>
                   )}
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-semibold text-[#191c1d]">{event.id}</h3>
-                    <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                    <h3 className="font-semibold text-sm sm:text-base text-[#191c1d] truncate max-w-[140px] sm:max-w-none">{event.id}</h3>
+                    <span className={`px-2 py-0.5 text-xs font-semibold rounded-full flex-shrink-0 ${
                       event.active
                         ? 'bg-[#ffdad2]/30 text-[#ae3115]'
                         : 'bg-[#ffdad6] text-[#ba1a1a]'
@@ -530,47 +497,47 @@ export default function AdminPage() {
                   </div>
 
                   {event.description && (
-                    <p className="text-[#59413c] text-sm mb-3">{event.description}</p>
+                    <p className="text-[#59413c] text-xs sm:text-sm mb-3 line-clamp-2">{event.description}</p>
                   )}
 
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-[#59413c] mb-4">
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-[#59413c] mb-3 sm:mb-4">
                     <div className="flex items-center gap-1">
-                      <Image className="h-4 w-4" />
+                      <Image className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       <span>{event.photoCount}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Users className="h-4 w-4" />
+                      <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       <span>{event.userCount}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>{formatDate(event.expiresAt)}</span>
+                      <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      <span className="text-[10px] sm:text-sm">{formatDate(event.expiresAt)}</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 pt-3 border-t border-[#e1bfb8]/20">
+                  <div className="flex items-center gap-1 sm:gap-2 pt-3 border-t border-[#e1bfb8]/20">
                     <button
                       onClick={() => copyShareLink(event.id)}
-                      className="p-2 text-[#59413c] hover:text-[#ae3115] hover:bg-[#ffdad2]/20 rounded-lg transition-colors"
+                      className="p-1.5 sm:p-2 text-[#59413c] hover:text-[#ae3115] hover:bg-[#ffdad2]/20 rounded-lg transition-colors"
                       title="复制链接"
                     >
-                      <Copy className="h-4 w-4" />
+                      <Copy className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </button>
                     <a
                       href={`/?event=${event.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 text-[#59413c] hover:text-[#ae3115] hover:bg-[#ffdad2]/20 rounded-lg transition-colors"
+                      className="p-1.5 sm:p-2 text-[#59413c] hover:text-[#ae3115] hover:bg-[#ffdad2]/20 rounded-lg transition-colors"
                       title="查看活动"
                     >
-                      <ExternalLink className="h-4 w-4" />
+                      <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </a>
                     <button
                       onClick={() => handleDeleteEvent(event.id)}
-                      className="p-2 text-[#59413c] hover:text-[#ba1a1a] hover:bg-[#ffdad6]/30 rounded-lg transition-colors ml-auto"
+                      className="p-1.5 sm:p-2 text-[#59413c] hover:text-[#ba1a1a] hover:bg-[#ffdad6]/30 rounded-lg transition-colors ml-auto"
                       title="删除活动"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </button>
                   </div>
                 </div>

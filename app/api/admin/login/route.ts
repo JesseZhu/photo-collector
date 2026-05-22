@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyPassword, initializeAdmin, loadAdminData } from '@/lib/admin';
+import { verifyPassword, initializeAdmin, loadAdminData, getTokenFromRequest, verifyToken } from '@/lib/admin';
 
 export async function POST(request: NextRequest) {
   try {
@@ -60,9 +60,12 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const adminData = await loadAdminData();
+  const token = getTokenFromRequest(request.headers);
+  const authenticated = token ? verifyToken(token) : false;
   return NextResponse.json({
     initialized: !!adminData.passwordHash,
+    authenticated,
   });
 }
