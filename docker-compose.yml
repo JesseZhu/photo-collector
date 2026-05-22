@@ -11,3 +11,4 @@ services:
       - JWT_SECRET=your-secret-key-change-this
     volumes:
       - /volume1/docker/photo-collector:/app/data
+      - /volume1/docker/photo-collector/uploads:/app/uploads
