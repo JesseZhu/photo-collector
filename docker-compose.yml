@@ -10,7 +10,7 @@ services:
     environment:
       - JWT_SECRET=Jesse&Ann..
     volumes:
-      # - /volume1/docker/photo-collector:/app/data
-      # - /volume1/docker/photo-collector/uploads:/app/uploads
-      - /Users/Jesse/Documents/docker/photo-collector:/app/data
-      - /Users/Jesse/Documents/docker/photo-collector/uploads:/app/uploads
+      - /volume1/docker/photo-collector:/app/data
+      - /volume1/docker/photo-collector/uploads:/app/uploads
+      # - /Users/Jesse/Documents/docker/photo-collector:/app/data
+      # - /Users/Jesse/Documents/docker/photo-collector/uploads:/app/uploads
