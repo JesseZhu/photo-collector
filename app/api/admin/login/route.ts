@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyPassword, initializeAdmin, loadAdminData, getTokenFromRequest, verifyToken } from '@/lib/admin';
 
+function setAuthCookie(response: NextResponse, token: string, request: NextRequest) {
+  const isSecure = request.headers.get('x-forwarded-proto') === 'https' || request.url.startsWith('https://');
+  response.cookies.set('admin_token', token, {
+    httpOnly: true,
+    secure: isSecure,
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60,
+    path: '/',
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -25,13 +36,7 @@ export async function POST(request: NextRequest) {
         token,
       });
 
-      response.cookies.set('admin_token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60,
-        path: '/',
-      });
+      setAuthCookie(response, token, request);
 
       return response;
     }
@@ -43,13 +48,7 @@ export async function POST(request: NextRequest) {
       token,
     });
 
-    response.cookies.set('admin_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60,
-      path: '/',
-    });
+    setAuthCookie(response, token, request);
 
     return response;
   } catch (error: any) {
