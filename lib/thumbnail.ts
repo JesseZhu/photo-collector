@@ -13,6 +13,7 @@ export async function generateImageThumbnail(
 ): Promise<void> {
   try {
     await sharp(inputPath)
+      .rotate()
       .resize(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, {
         fit: 'cover',
         position: 'center',

@@ -39,6 +39,36 @@ export default function PhotoGrid({ photos, formatRelativeTime }: PhotoGridProps
     }
   };
 
+  const handleDownload = async (photo: { originalPath: string; filename: string }) => {
+    let blob: Blob | null = null;
+    try {
+      const response = await fetch(photo.originalPath);
+      blob = await response.blob();
+      const file = new File([blob], photo.filename, { type: blob.type });
+
+      if (typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: photo.filename });
+        return;
+      }
+    } catch {
+      // Web Share or fetch failed, fall through
+    }
+
+    if (blob) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = photo.filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      const a = document.createElement('a');
+      a.href = photo.originalPath;
+      a.download = photo.filename;
+      a.click();
+    }
+  };
+
   if (photos.length === 0) {
     return (
       <div className="text-center py-16">
@@ -66,14 +96,13 @@ export default function PhotoGrid({ photos, formatRelativeTime }: PhotoGridProps
           onClick={closeLightbox}
         >
           <div className="absolute top-4 right-4 flex items-center gap-2">
-            <a
-              href={photos[selectedPhoto].originalPath}
-              download
+            <button
+              onClick={() => handleDownload(photos[selectedPhoto])}
               className="p-2 text-white hover:bg-white/20 rounded-full transition-colors"
               title="下载"
             >
               <Download className="h-6 w-6" />
-            </a>
+            </button>
             <button
               onClick={closeLightbox}
               className="p-2 text-white hover:bg-white/20 rounded-full transition-colors"
