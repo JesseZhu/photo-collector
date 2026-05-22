@@ -22,8 +22,8 @@ COPY --from=base /app/public ./public
 COPY --from=base /app/.next/standalone ./
 COPY --from=base /app/.next/static ./.next/static
 
-RUN mkdir -p /app/data /app/data/uploads /app/data/covers
-RUN chown -R nextjs:nodejs /app/data
+RUN mkdir -p /app/data /app/data/uploads /app/data/covers /app/uploads
+RUN chown -R nextjs:nodejs /app/data /app/uploads
 
 USER nextjs
 
