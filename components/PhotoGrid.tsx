@@ -40,33 +40,25 @@ export default function PhotoGrid({ photos, formatRelativeTime }: PhotoGridProps
   };
 
   const handleDownload = async (photo: { originalPath: string; filename: string }) => {
-    let blob: Blob | null = null;
-    try {
-      const response = await fetch(photo.originalPath);
-      blob = await response.blob();
-      const file = new File([blob], photo.filename, { type: blob.type });
+    if (typeof navigator.share === 'function') {
+      try {
+        const response = await fetch(photo.originalPath);
+        const blob = await response.blob();
+        const file = new File([blob], photo.filename, { type: blob.type });
 
-      if (typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: photo.filename });
-        return;
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: photo.filename });
+          return;
+        }
+      } catch {
+        // Web Share failed, fall through to direct download
       }
-    } catch {
-      // Web Share or fetch failed, fall through
     }
 
-    if (blob) {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = photo.filename;
-      a.click();
-      URL.revokeObjectURL(url);
-    } else {
-      const a = document.createElement('a');
-      a.href = photo.originalPath;
-      a.download = photo.filename;
-      a.click();
-    }
+    const a = document.createElement('a');
+    a.href = photo.originalPath;
+    a.download = photo.filename;
+    a.click();
   };
 
   if (photos.length === 0) {
