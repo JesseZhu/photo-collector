@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import UploadZone from '@/components/UploadZone';
 import PhotoGrid from '@/components/PhotoGrid';
-import { Camera, User, Link2, Clock, Image, Users, ArrowLeft, Share2 } from 'lucide-react';
+import { Camera, User, Link2, Clock, Image, Users, ArrowLeft } from 'lucide-react';
 
 interface Event {
   id: string;
@@ -177,15 +177,7 @@ function HomeContent() {
               <span className="hidden md:inline">返回活动列表</span>
             </button>
           )}
-          {event && user && (
-            <button
-              onClick={copyShareLink}
-              className="flex items-center gap-1 bg-[#ae3115] text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm hover:bg-[#ff6b4a] hover:text-[#661000] transition-colors active:scale-95 duration-200"
-            >
-              <Share2 className="h-4 w-4" />
-              分享
-            </button>
-          )}
+
         </div>
       </header>
 
