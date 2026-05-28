@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
 
     if (error.message.includes('File size')) {
       return NextResponse.json(
-        { success: false, error: 'File size exceeds 200MB limit' },
+        { success: false, error: '文件大小超过 400MB 上限' },
         { status: 400 }
       );
     }

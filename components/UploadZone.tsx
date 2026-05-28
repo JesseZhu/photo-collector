@@ -135,7 +135,7 @@ export default function UploadZone({ event, user, onUploadComplete }: UploadZone
             <Upload className="h-5 w-5" />
             上传照片
           </button>
-          <p className="text-xs text-[#59413c]/60 mt-4">单文件最大 200MB • 支持图片和视频</p>
+          <p className="text-xs text-[#59413c]/60 mt-4">单文件最大 400MB • 支持图片和视频</p>
         </div>
         
         <input

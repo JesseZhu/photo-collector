@@ -33,7 +33,7 @@ export interface EventInfo {
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif'];
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/avi', 'video/x-msvideo'];
-const MAX_FILE_SIZE = 200 * 1024 * 1024; // 200MB
+const MAX_FILE_SIZE = 400 * 1024 * 1024; // 400MB
 
 function sanitizeInput(input: string): string {
   // Remove path traversal attempts and special characters
@@ -64,7 +64,7 @@ export async function saveFile(
   }
 
   if (file.size > MAX_FILE_SIZE) {
-    throw new Error('File size exceeds 200MB limit');
+    throw new Error('File size exceeds 400MB limit');
   }
 
   // Create directory structure
